@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <hexo></hexo>
+    <github-badge slug="sinchang/douban-book-wall" />
     <div class="container">
       <div class="field has-addons has-addons-centered">
         <div class="control">
@@ -30,6 +31,7 @@
 </template>
 
 <script>
+  import GitHubBadge from 'vue-github-badge'
   import Hexo from './Hexo.vue'
   import Book from './Book.vue'
   import domtoimage from 'dom-to-image'
@@ -89,7 +91,8 @@
     },
     components: {
       Hexo,
-      Book
+      Book,
+      'github-badge': GitHubBadge
     }
   }
 </script>
