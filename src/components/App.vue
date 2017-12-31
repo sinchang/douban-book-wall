@@ -4,8 +4,17 @@
     <github-badge slug="sinchang/douban-book-wall" />
     <div class="container">
       <div class="field has-addons has-addons-centered">
+        <p class="control">
+          <span class="select">
+            <select v-model="type" @change="handleTypeChange">
+              <option value="0">按年份</option>
+              <option value="1">自行添加</option>
+            </select>
+          </span>
+        </p>
         <div class="control">
-          <input class="input" type="text" placeholder="请输入豆瓣图书地址" v-model="bookUrl"/>
+          <input class="input" type="text" placeholder="请输入你的豆瓣 ID" v-model="userId" v-if="type == 0"/>
+          <input class="input" type="text" placeholder="请输入豆瓣图书的 URL" v-model="bookUrl" v-else />
         </div>
         <div class="control">
           <a class="button is-primary" @click="search">Search</a>
@@ -13,6 +22,13 @@
       </div>
     </div>
     <div class="container">
+      <p class="control has-text-centered create-btn" v-if="years.length">
+        <span class="select">
+          <select v-model="year" @change="handleYearChange">
+            <option :value="item" v-for="(item, index) in years" :key="index">{{item}}</option>
+          </select>
+        </span>
+      </p>
       <div ref="container">
         <div class="columns is-gapless">
           <div class="column is-2" v-for="book in books" :key="book.id">
@@ -43,11 +59,39 @@
         bookUrl: null,
         imageUrl: null,
         btnText: '生成图片',
-        books: []
+        books: [],
+        years: [],
+        allBooks: {},
+        type: 0,
+        year: null,
+        userId: ''
       }
     },
     methods: {
       search() {
+        this.allBooks = {}
+        this.books = []
+        if (this.type == 0) {
+          if (!this.userId) {
+            alert('请输入您的豆瓣 ID')
+            return
+          }
+          this.fetchBooks(0)
+            .then(async res => {
+              const skip = Math.floor(res.total / 100)
+              console.log(skip)
+              if (skip !== 0) {
+                for (let i = 1; i < skip + 1; i++) {
+                  await this.fetchBooks(i * 100)
+                }
+              }
+              this.years = Object.keys(this.allBooks)
+              this.year = this.years[0]
+              this.books = this.allBooks[this.year]
+            })
+          return
+        }
+
         if (!this.bookUrl || this.bookUrl.indexOf('https://book.douban.com/subject') === -1) {
           alert('请输入豆瓣图书地址')
           return
@@ -71,9 +115,43 @@
       getBookId(url) {
         return /^https:\/\/book\.douban\.com\/subject\/(\d+)/.exec(url)[1]
       },
+      fetchBooks(start = 0) {
+        return this.$jsonp(`https://api.douban.com/v2/book/user/${this.userId}/collections?status=read&count=100&start=${start}`)
+          .then(res => {
+            const collections = res.collections
+            collections.forEach(collection => {
+              const year = new Date(collection.updated).getFullYear()
+              console.log(this.allBooks[year])
+              if (this.allBooks[year] === undefined) {
+                this.allBooks[year] = []
+              }
+
+              this.allBooks[year].push({
+                id: collection.id,
+                title: collection.book.title,
+                image: collection.book.images.large
+              })
+            })
+            return Promise.resolve(res)
+          }).catch(err => {
+            return Promise.reject(err)
+          })
+      },
       handleDelete(book) {
         this.clear()
         this.books.splice(this.books.indexOf(book), 1)
+      },
+      handleYearChange() {
+        if (!this.year) return
+        this.clear()
+        this.books = this.allBooks[this.year]
+      },
+      handleTypeChange() {
+        this.years = []
+        this.year = null
+        this.books = []
+        this.allBooks = {}
+        this.userId = ''
       },
       clear() {
         this.imageUrl = null
