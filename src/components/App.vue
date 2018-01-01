@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <a class="button is-primary create-btn"
+    <a :class="['button', 'is-primary', 'create-btn', { 'is-loading': isCreating }]"
       @click="create"
       v-if="books.length"
       ref="create"
@@ -51,6 +51,7 @@
   import Hexo from './Hexo.vue'
   import Book from './Book.vue'
   import domtoimage from 'dom-to-image'
+  import b64toBlob from '../b64toBlob'
 
   export default {
     name: 'app',
@@ -65,11 +66,13 @@
         type: 0,
         year: null,
         userId: '',
-        isLoading: false
+        isLoading: false,
+        isCreating: false
       }
     },
     methods: {
       search() {
+        this.allBooks = {}
         if (this.type == 0) {
           if (!this.userId) {
             alert('请输入您的豆瓣 ID')
@@ -167,11 +170,19 @@
         this.btnText = '生成图片'
       },
       create() {
+        this.isCreating = true
         domtoimage.toPng(this.$refs.container)
           .then(dataUrl => {
-            this.imageUrl = dataUrl
+            const b64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '')
+            const contentType = 'image/png'
+            const blob = b64toBlob(b64Data, contentType)
+            const blobUrl = URL.createObjectURL(blob)
+            this.imageUrl = blobUrl
             this.btnText = '下载'
-          }).catch(() => {
+            this.isCreating = false
+          }).catch((err) => {
+            console.log(err)
+            this.isCreating = false
             alert('生成图片失败')
           })
       }
