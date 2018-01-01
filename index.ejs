@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title><%= htmlWebpackPlugin.options.title %></title>
 
-    
+
 
     <% if (htmlWebpackPlugin.options.description) { %>
     <meta name="description" content="<%= htmlWebpackPlugin.options.description %>"/>
     <% } %>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <% for (var chunk of webpack.chunks) {
         for (var file of chunk.files) {
           if (file.match(/\.(js|css)$/)) { %>

@@ -17,7 +17,7 @@
           <input class="input" type="text" placeholder="请输入豆瓣图书的 URL" v-model="bookUrl" v-else />
         </div>
         <div class="control">
-          <a class="button is-primary" @click="search">Search</a>
+          <a :class="['button', 'is-primary', { 'is-loading': isLoading }]" @click="search">Search</a>
         </div>
       </div>
     </div>
@@ -64,30 +64,38 @@
         allBooks: {},
         type: 0,
         year: null,
-        userId: ''
+        userId: '',
+        isLoading: false
       }
     },
     methods: {
       search() {
-        this.allBooks = {}
-        this.books = []
         if (this.type == 0) {
           if (!this.userId) {
             alert('请输入您的豆瓣 ID')
             return
           }
+          this.isLoading = true
           this.fetchBooks(0)
             .then(async res => {
-              const skip = Math.floor(res.total / 100)
-              console.log(skip)
-              if (skip !== 0) {
-                for (let i = 1; i < skip + 1; i++) {
-                  await this.fetchBooks(i * 100)
+              try {
+                const skip = Math.floor(res.total / 100)
+                if (skip !== 0) {
+                  for (let i = 1; i < skip + 1; i++) {
+                    await this.fetchBooks(i * 100)
+                  }
                 }
+                this.years = Object.keys(this.allBooks)
+                this.year = this.years[this.years.length - 1]
+                this.books = this.allBooks[this.year]
+                this.isLoading = false
+              } catch(e) {
+                this.isLoading = false
+                alert('不好意思，出错了。😭')
               }
-              this.years = Object.keys(this.allBooks)
-              this.year = this.years[0]
-              this.books = this.allBooks[this.year]
+            }).catch(() => {
+              this.isLoading = false
+              alert('获取图书信息失败，请检查豆瓣 ID 是否准确')
             })
           return
         }
@@ -98,7 +106,7 @@
         }
 
         const bookId = this.getBookId(this.bookUrl)
-
+        this.isLoading = true
         this.$jsonp(`https://api.douban.com/v2/book/${bookId}`)
           .then(res => {
             this.books.push({
@@ -108,7 +116,9 @@
             })
             this.clear()
             this.bookUrl = ''
+            this.isLoading = false
           }).catch(() => {
+            this.isLoading = false
             alert('获取图书信息失败，请检查图书地址是否准确')
           })
       },
@@ -121,7 +131,6 @@
             const collections = res.collections
             collections.forEach(collection => {
               const year = new Date(collection.updated).getFullYear()
-              console.log(this.allBooks[year])
               if (this.allBooks[year] === undefined) {
                 this.allBooks[year] = []
               }
