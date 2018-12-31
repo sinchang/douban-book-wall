@@ -1,6 +1,6 @@
 <template>
   <div class="book">
-    <img :src="book.image" alt="">
+    <img :src="book.image" alt="" referrerpolicy ="never">
     <div class="meta">
       <h6 class="title">{{book.title}}</h6>
       <a href="javascript:;" class="delete-btn" @click="handleDelete(book)">Delete</a>
