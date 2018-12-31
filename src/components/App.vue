@@ -81,6 +81,11 @@
           this.isLoading = true
           this.fetchBooks(0)
             .then(async res => {
+              if (res.collections.length === 0) {
+                this.isLoading = false
+                alert('你还没标记过任何书籍')
+                return
+              }
               try {
                 const skip = Math.floor(res.total / 100)
                 if (skip !== 0) {
