@@ -4,6 +4,7 @@
     <div class="meta">
       <h6 class="title">{{book.title}}</h6>
       <a href="javascript:;" class="delete-btn" @click="handleDelete(book)">Delete</a>
+      <a :href="book.url" target="_blank">Douban Link</a>
     </div>
   </div>
 </template>
@@ -53,7 +54,7 @@
   }
 
   .meta .delete-btn {
-    color: red;
+    display: block;
   }
 </style>
 

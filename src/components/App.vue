@@ -120,7 +120,8 @@
             this.books.push({
               title: res.title,
               image: res.images.large,
-              id: res.id
+              id: res.id,
+              url: res.alt
             })
             this.clear()
             this.bookUrl = ''
@@ -146,7 +147,8 @@
               this.allBooks[year].push({
                 id: collection.id,
                 title: collection.book.title,
-                image: collection.book.images.large
+                image: collection.book.images.large,
+                url: collection.book.alt
               })
             })
             return Promise.resolve(res)
