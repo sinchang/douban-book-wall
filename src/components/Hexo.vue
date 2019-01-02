@@ -16,7 +16,6 @@
       <div class="modal-background"></div>
       <div class="modal-content">
         <p>1、豆瓣 ID 指的是 https://www.douban.com/people/sinchangwen 中的 sinchangwen</p>
-        <p>2、豆瓣图书 URL 例如： https://book.douban.com/subject/10945606/</p>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="isActive = false"></button>
     </div>

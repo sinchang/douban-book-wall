@@ -8,13 +8,11 @@
           <span class="select">
             <select v-model="type" @change="handleTypeChange">
               <option value="0">按年份</option>
-              <option value="1">自行添加</option>
             </select>
           </span>
         </p>
         <div class="control">
           <input class="input" type="text" placeholder="请输入你的豆瓣 ID" v-model="userId" v-if="type == 0"/>
-          <input class="input" type="text" placeholder="请输入豆瓣图书的 URL" v-model="bookUrl" v-else />
         </div>
         <div class="control">
           <a :class="['button', 'is-primary', { 'is-loading': isLoading }]" @click="search">Search</a>
@@ -83,7 +81,7 @@
             .then(async res => {
               if (res.collections.length === 0) {
                 this.isLoading = false
-                alert('你还没标记过任何书籍')
+                alert('你还没标记过任何内容')
                 return
               }
               try {
@@ -107,32 +105,6 @@
             })
           return
         }
-
-        if (!this.bookUrl || this.bookUrl.indexOf('https://book.douban.com/subject') === -1) {
-          alert('请输入豆瓣图书地址')
-          return
-        }
-
-        const bookId = this.getBookId(this.bookUrl)
-        this.isLoading = true
-        this.$jsonp(`https://api.douban.com/v2/book/${bookId}`)
-          .then(res => {
-            this.books.push({
-              title: res.title,
-              image: res.images.large,
-              id: res.id,
-              url: res.alt
-            })
-            this.clear()
-            this.bookUrl = ''
-            this.isLoading = false
-          }).catch(() => {
-            this.isLoading = false
-            alert('获取图书信息失败，请检查图书地址是否准确')
-          })
-      },
-      getBookId(url) {
-        return /^https:\/\/book\.douban\.com\/subject\/(\d+)/.exec(url)[1]
       },
       fetchBooks(start = 0) {
         return this.$jsonp(`https://api.douban.com/v2/book/user/${this.userId}/collections?status=read&count=100&start=${start}`)
