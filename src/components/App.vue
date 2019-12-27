@@ -107,7 +107,8 @@
         }
       },
       fetchBooks(start = 0) {
-        return this.$jsonp(`https://api.douban.com/v2/book/user/${this.userId}/collections?status=read&count=100&start=${start}`)
+        return fetch(`https://douban-api.now.sh/v2/book/user/${this.userId}/collections?status=read&count=100&start=${start}`)
+          .then(json => json.json())
           .then(res => {
             const collections = res.collections
             collections.forEach(collection => {
