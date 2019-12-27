@@ -1,6 +1,6 @@
 # douban-book-wall
 
-> My groovy Vue project
+[![Netlify Status](https://api.netlify.com/api/v1/badges/390929f2-0e12-4ed9-9475-94938ede9338/deploy-status)](https://app.netlify.com/sites/douban/deploys)
 
 ## Commands
 
